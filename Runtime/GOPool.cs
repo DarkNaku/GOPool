@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Pool;
 
@@ -94,6 +95,11 @@ namespace DarkNaku.GOPool
         public static void Clear()
         {
             Instance._Clear();
+        }
+
+        public static void WarmUp(string key, int count)
+        {
+            Instance._WarmUp(key, count);
         }
         
         private void Awake()
@@ -242,6 +248,32 @@ namespace DarkNaku.GOPool
             
             _moldTable.Clear();
             Resources.UnloadUnusedAssets();
+        }
+        
+        private void _WarmUp(string key, int count)
+        {
+            if (_moldTable.ContainsKey(key))
+            {
+                var items = new List<IGOPoolItem>();
+                
+                while (count > 0)
+                {
+                    var item = _Get(key, transform);
+                    
+                    items.Add(item);
+                    
+                    count--;
+                }
+                
+                for (int i = 0; i < items.Count; i++)
+                {
+                    _Release(items[i], 0f);
+                }
+            }
+            else
+            {
+                Debug.LogWarning($"[GOPool] CoWarmUp : Can't found key - {key}");
+            }
         }
         
         private IEnumerator CoRelease(IGOPoolItem item, float delay)

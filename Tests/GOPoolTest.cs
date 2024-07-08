@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using DarkNaku.GOPool;
-using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
 
@@ -11,6 +10,18 @@ public class GOPoolTest
     public IEnumerator GOPoolTestWithEnumeratorPasses()
     {
         GOPool.RegisterBuiltIn("Prefabs/Capsule", "Prefabs/Cube", "Prefabs/Sphere");
+
+        GOPool.WarmUp("Capsule", 10);
+        
+        yield return new WaitForSeconds(3f);
+
+        GOPool.WarmUp("Cube", 10);
+        
+        yield return new WaitForSeconds(3f);
+
+        GOPool.WarmUp("Sphere", 10);
+        
+        yield return new WaitForSeconds(3f);
         
         yield return CoCreate("Capsule");
         yield return CoCreate("Cube");
