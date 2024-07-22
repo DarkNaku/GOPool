@@ -164,6 +164,17 @@ namespace DarkNaku.GOPool
             }
         }
 
+        private void _Register(GOPoolData data)
+        {
+            if (data == null)
+            {
+                Debug.LogError($"[GOPool] Register : Data is null.");
+                return;
+            }
+
+            _Register(string.IsNullOrEmpty(data.Key) ? data.Prefab.name : data.Key, data.Prefab);
+        }
+
         private void _Register(string key, GameObject prefab)
         {
             if (prefab == null)
@@ -195,35 +206,6 @@ namespace DarkNaku.GOPool
             _moldTable.TryAdd(key, data);
         }
         
-        private void _Register(GOPoolData data)
-        {
-            if (data == null)
-            {
-                Debug.LogError($"[GOPool] Register : Data is null.");
-                return;
-            }
-
-            data.Pool = new ObjectPool<IGOPoolItem>(
-                () =>
-                {
-                    var go = Instantiate(data.Prefab);
-                    
-                    var item = go.GetComponent<IGOPoolItem>();
-
-                    if (item == null)
-                    {
-                        item = go.AddComponent<GOPoolItem>();
-                    }
-
-                    return item;
-                },
-                OnGetItem,
-                OnReleaseItem,
-                OnDestroyItem);
-
-            _moldTable.TryAdd(string.IsNullOrEmpty(data.Key) ? data.Prefab.name : data.Key, data);
-        }
-
         private void _Unregister(string key)
         {
             if (_moldTable.ContainsKey(key))
