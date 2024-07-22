@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor;
 using UnityEngine;
 
 namespace DarkNaku.GOPool
@@ -46,10 +45,10 @@ namespace DarkNaku.GOPool
         private static GOPoolConfig _instance;
 
 #if UNITY_EDITOR
-        [MenuItem("Tools/GOPool Config")]
+        [UnityEditor.MenuItem("Tools/GOPool Config")]
         private static void SelectConfig()
         {
-            Selection.activeObject = Instance;
+            UnityEditor.Selection.activeObject = Instance;
         }
 #endif
     }
