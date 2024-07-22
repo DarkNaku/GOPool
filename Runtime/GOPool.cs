@@ -57,6 +57,15 @@ namespace DarkNaku.GOPool
             _instance = null;
         }
 
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+        private static void OnAfterSceneLoad()
+        {
+            for (int i = 0; i < GOPoolConfig.Items.Count; i++)
+            {
+                Instance._Register(GOPoolConfig.Items[i]);
+            }
+        }
+
         public static void RegisterBuiltIn(params string[] paths)
         {
             Instance._RegisterBuiltIn(paths);
@@ -66,7 +75,7 @@ namespace DarkNaku.GOPool
         {
             Instance._Register(key, prefab);
         }
-
+        
         public static void Unregister(string key)
         {
             Instance._Unregister(key);
@@ -184,6 +193,35 @@ namespace DarkNaku.GOPool
             var data = new GOPoolData(key, prefab, pool);
 
             _moldTable.TryAdd(key, data);
+        }
+        
+        private void _Register(GOPoolData data)
+        {
+            if (data == null)
+            {
+                Debug.LogError($"[GOPool] Register : Data is null.");
+                return;
+            }
+
+            data.Pool = new ObjectPool<IGOPoolItem>(
+                () =>
+                {
+                    var go = Instantiate(data.Prefab);
+                    
+                    var item = go.GetComponent<IGOPoolItem>();
+
+                    if (item == null)
+                    {
+                        item = go.AddComponent<GOPoolItem>();
+                    }
+
+                    return item;
+                },
+                OnGetItem,
+                OnReleaseItem,
+                OnDestroyItem);
+
+            _moldTable.TryAdd(string.IsNullOrEmpty(data.Key) ? data.Prefab.name : data.Key, data);
         }
 
         private void _Unregister(string key)

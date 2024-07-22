@@ -9,6 +9,8 @@
 3. https://github.com/DarkNaku/GOPool.git 입력하고 Add를 클릭합니다.
 
 ### 사용방법
+* 'Tools > GOPool Config' 메뉴에서 풀링 대상을 미리 세팅 한 후에 사용할 수 있습니다.
+
 ```csharp
 GOPool.RegisterBuiltIn("Prefabs/Capsule", "Prefabs/Cube", "Prefabs/Sphere"); // 리소스 경로에 있는 프리팹 등록
 

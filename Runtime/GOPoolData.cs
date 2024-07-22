@@ -5,16 +5,19 @@ using UnityEngine.Pool;
 namespace DarkNaku.GOPool
 {
     [Serializable]
-    public struct GOPoolData
+    public class GOPoolData
     {
-        public string Key { get; private set; }
-        public GameObject Prefab { get; private set; }
-        public IObjectPool<IGOPoolItem> Pool { get; private set; }
+        [SerializeField] private string _key;
+        [SerializeField] private GameObject _prefab;
+
+        public string Key => _key;
+        public GameObject Prefab => _prefab;
+        public IObjectPool<IGOPoolItem> Pool { get; set; }
         
         public GOPoolData(string key, GameObject prefab, IObjectPool<IGOPoolItem> pool)
         {
-            Key = key;
-            Prefab = prefab;
+            _key = key;
+            _prefab = prefab;
             Pool = pool;
         }
 
@@ -22,8 +25,8 @@ namespace DarkNaku.GOPool
         {
             Pool.Clear();
             
-            Key = null;
-            Prefab = null;
+            _key = null;
+            _prefab = null;
             Pool = null;
         }
     }
