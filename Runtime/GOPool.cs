@@ -106,9 +106,9 @@ namespace DarkNaku.GOPool
             Instance._Clear();
         }
 
-        public static void WarmUp(string key, int count)
+        public static async Task Preload(string key, int count)
         {
-            Instance._WarmUp(key, count);
+            await Instance._Preload(key, count);
         }
         
         private void Awake()
@@ -288,19 +288,31 @@ namespace DarkNaku.GOPool
             Resources.UnloadUnusedAssets();
         }
         
-        private void _WarmUp(string key, int count)
+        private async Task _Preload(string key, int count)
         {
+            var frameTime = 1f / Application.targetFrameRate;
+            
             if (_moldTable.ContainsKey(key))
             {
                 var items = new List<IGOPoolItem>();
+                
+                var startTime = Time.realtimeSinceStartup;
                 
                 while (count > 0)
                 {
                     var item = _Get(key, transform);
                     
+                    item.GO.SetActive(false);
+                    
                     items.Add(item);
                     
                     count--;
+                    
+                    if (Time.realtimeSinceStartup - startTime >= frameTime)
+                    {
+                        await Task.Yield();
+                        startTime = Time.realtimeSinceStartup;
+                    }
                 }
                 
                 for (int i = 0; i < items.Count; i++)

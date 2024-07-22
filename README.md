@@ -14,7 +14,9 @@
 ```csharp
 GOPool.RegisterBuiltIn("Prefabs/Capsule", "Prefabs/Cube", "Prefabs/Sphere"); // 리소스 경로에 있는 프리팹 등록
 
-var cube = GOPool.Get(Cube); // 사용 방법 1
+await GOPool.Preload("Cube", 100);
+
+var cube = GOPool.Get("Cube"); // 사용 방법 1
 var customComponent = GOPool.Get<CustomComponent>(key); // 사용 방법 2
 
 GOPool.Release(cube); // 해제 1
@@ -24,5 +26,4 @@ GOPool.Release(customComponent, 2f); // 지연 해제 4
 ```
 
 ### 추가 하려고 계획하고 있는 기능
-* 비동기 웜업
 * 어드레서블로 부터 추가

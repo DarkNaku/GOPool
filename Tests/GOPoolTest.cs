@@ -11,15 +11,15 @@ public class GOPoolTest
     {
         GOPool.RegisterBuiltIn("Prefabs/Capsule", "Prefabs/Cube", "Prefabs/Sphere");
 
-        GOPool.WarmUp("Capsule", 10);
+        GOPool.Preload("Capsule", 10);
         
         yield return new WaitForSeconds(3f);
 
-        GOPool.WarmUp("Cube", 10);
+        GOPool.Preload("Cube", 10);
         
         yield return new WaitForSeconds(3f);
 
-        GOPool.WarmUp("Sphere", 10);
+        GOPool.Preload("Sphere", 10);
         
         yield return new WaitForSeconds(3f);
         
