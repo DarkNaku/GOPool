@@ -45,6 +45,7 @@ namespace DarkNaku.GOPool
         private static readonly object _lock = new();
         private static GOPool _instance;
         private static bool _isDestroyed;
+        private static bool _configRegistered;
 
         private Dictionary<string, GOPoolData> _moldTable = new Dictionary<string, GOPoolData>();
         private Dictionary<IGOPoolItem, float> _releaseQueue = new Dictionary<IGOPoolItem, float>();
@@ -55,15 +56,20 @@ namespace DarkNaku.GOPool
         private static void OnSubsystemRegistration()
         {
             _instance = null;
+            _configRegistered = false;
         }
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void OnAfterSceneLoad()
         {
+            if (_configRegistered) return;
+            
             for (int i = 0; i < GOPoolConfig.Items.Count; i++)
             {
                 Instance._Register(GOPoolConfig.Items[i]);
             }
+
+            _configRegistered = true;
         }
 
         public static void RegisterBuiltIn(params string[] paths)
