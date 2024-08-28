@@ -102,7 +102,7 @@ namespace DarkNaku.GOPool
             Instance._Release(item,delay);
         }
         
-        public static void Release(IGOPoolItem item, float delay)
+        public static void Release(IGOPoolItem item, float delay = 0f)
         {
             Instance._Release(item, delay);
         }
