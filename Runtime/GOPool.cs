@@ -92,7 +92,7 @@ namespace DarkNaku.GOPool
             return Instance._Get(key, parent).GO;
         }
         
-        public static U Get<U>(string key, Transform parent = null) where U : IGOPoolItem
+        public static U Get<U>(string key, Transform parent = null)
         {
             return Instance._Get<U>(key, parent);
         }
@@ -221,7 +221,7 @@ namespace DarkNaku.GOPool
             }
         }
 
-        private T _Get<T>(string key, Transform parent) where T : IGOPoolItem
+        private T _Get<T>(string key, Transform parent)
         {
             var item = _Get(key, parent);
 
