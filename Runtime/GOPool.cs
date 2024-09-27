@@ -217,8 +217,11 @@ namespace DarkNaku.GOPool
             if (_moldTable.ContainsKey(key))
             {
                 _moldTable[key].Clear();
-                Resources.UnloadUnusedAssets();
             }
+
+            _moldTable.Remove(key);
+            
+            Resources.UnloadUnusedAssets();
         }
 
         private T _Get<T>(string key, Transform parent)
@@ -230,11 +233,25 @@ namespace DarkNaku.GOPool
         
         private IGOPoolItem _Get(string key, Transform parent)
         {
+            if (_moldTable.ContainsKey(key) == false)
+            {
+                var go = Resources.Load<GameObject>(key);
+
+                if (!go)
+                {
+                    Debug.LogError($"[GOPool Get : Can't found item. {key}");
+                    return null;
+                }
+                
+                _Register(key, go);
+            }
+            
             if (_moldTable.TryGetValue(key, out var data))
             {
-                var item = data.Pool.Get();
-                item.Pool = data.Pool;
+                var item = data.Get();
+                
                 item.GO.transform.SetParent(parent);
+                
                 return item;
             }
 
@@ -256,7 +273,7 @@ namespace DarkNaku.GOPool
             }
             else
             {
-                item.Pool.Release(item);
+                item.Data.Release(item);
             }
         }
 
@@ -367,6 +384,8 @@ namespace DarkNaku.GOPool
         private void OnDestroyItem(IGOPoolItem item)
         {
             item.OnDestroyItem();
+            
+            Destroy(item.GO);
         }
     }
 }

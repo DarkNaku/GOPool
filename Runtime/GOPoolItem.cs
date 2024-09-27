@@ -6,7 +6,7 @@ namespace DarkNaku.GOPool
     public class GOPoolItem : MonoBehaviour, IGOPoolItem
     {
         public GameObject GO => gameObject;
-        public IObjectPool<IGOPoolItem> Pool { get; set; }
+        public GOPoolData Data { get; set; }
 
         public void OnGetItem()
         {

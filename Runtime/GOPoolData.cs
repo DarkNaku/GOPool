@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using UnityEngine;
 using UnityEngine.Pool;
 
@@ -12,22 +14,48 @@ namespace DarkNaku.GOPool
 
         public string Key => _key;
         public GameObject Prefab => _prefab;
-        public IObjectPool<IGOPoolItem> Pool { get; set; }
+        
+        private IObjectPool<IGOPoolItem> _pool;
+        private HashSet<IGOPoolItem> _inactiveItems = new();
         
         public GOPoolData(string key, GameObject prefab, IObjectPool<IGOPoolItem> pool)
         {
             _key = key;
             _prefab = prefab;
-            Pool = pool;
+            _pool = pool;
+        }
+
+        public IGOPoolItem Get()
+        {
+            var item = _pool.Get();
+
+            item.Data = this;
+
+            _inactiveItems.Add(item);
+
+            return item;
+        }
+
+        public void Release(IGOPoolItem item)
+        {
+            _pool.Release(item);
+            
+            _inactiveItems.Remove(item);
         }
 
         public void Clear()
         {
-            Pool.Clear();
+            foreach (var item in _inactiveItems)
+            {
+                _pool.Release(item);
+            }
+            
+            _inactiveItems.Clear();
+            _pool.Clear();
             
             _key = null;
             _prefab = null;
-            Pool = null;
+            _pool = null;
         }
     }
 }
