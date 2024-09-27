@@ -29,7 +29,7 @@ namespace DarkNaku.GOPool
         {
             var item = _pool.Get();
 
-            item.Data = this;
+            item.PoolData = this;
 
             _inactiveItems.Add(item);
 

@@ -6,7 +6,7 @@ namespace DarkNaku.GOPool
     public interface IGOPoolItem
     {
         GameObject GO { get; }
-        GOPoolData Data{ get; set; }
+        GOPoolData PoolData { get; set; }
 
         void OnGetItem();
         void OnReleaseItem();

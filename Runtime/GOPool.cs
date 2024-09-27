@@ -273,7 +273,7 @@ namespace DarkNaku.GOPool
             }
             else
             {
-                item.Data.Release(item);
+                item.PoolData.Release(item);
             }
         }
 
