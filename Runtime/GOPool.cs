@@ -131,7 +131,7 @@ namespace DarkNaku.GOPool
             }
         }
         
-        private void OnDestroy()
+        private void OnApplicationQuit()
         {
             if (_instance != this) return;
             
