@@ -8,17 +8,17 @@ namespace DarkNaku.GOPool
         public GameObject GO => gameObject;
         public GOPoolData PoolData { get; set; }
 
-        public void OnGetItem()
+        public virtual void OnGetItem()
         {
             GO.SetActive(true);
         }
 
-        public void OnReleaseItem()
+        public virtual void OnReleaseItem()
         {
             GO.SetActive(false);
         }
 
-        public void OnDestroyItem()
+        public virtual void OnDestroyItem()
         {
         }
     }
