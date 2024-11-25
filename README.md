@@ -6,7 +6,7 @@
 ### 설치방법
 1. 패키지 관리자의 툴바에서 좌측 상단에 플러스 메뉴를 클릭합니다.
 2. 추가 메뉴에서 Add package from git URL을 선택하면 텍스트 상자와 Add 버튼이 나타납니다.
-3. https://github.com/DarkNaku/GOPool.git 입력하고 Add를 클릭합니다.
+3. https://github.com/DarkNaku/GOPool.git?path=/Assets/GOPool 입력하고 Add를 클릭합니다.
 
 ### 사용방법
 * 'Tools > GOPool Config' 메뉴에서 풀링 대상을 미리 세팅 한 후에 사용할 수 있습니다.
