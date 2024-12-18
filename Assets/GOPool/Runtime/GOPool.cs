@@ -56,6 +56,7 @@ namespace DarkNaku.GOPool
         private static void OnSubsystemRegistration()
         {
             _instance = null;
+            _isDestroyed = false;
             _configRegistered = false;
         }
 
