@@ -61,35 +61,35 @@ namespace DarkNaku.GOPool {
         }
 
         public static void RegisterBuiltIn(params string[] paths) {
-            Instance._RegisterBuiltIn(paths);
+            Instance?._RegisterBuiltIn(paths);
         }
 
         public static void Register(string key, GameObject prefab) {
-            Instance._Register(key, prefab);
+            Instance?._Register(key, prefab);
         }
 
         public static void Unregister(string key) {
-            Instance._Unregister(key);
+            Instance?._Unregister(key);
         }
 
         public static GameObject Get(string key, Transform parent = null) {
-            return Instance._Get(key, parent).GO;
+            return Instance?._Get(key, parent).GO;
         }
 
-        public static U Get<U>(string key, Transform parent = null) {
-            return Instance._Get<U>(key, parent);
+        public static T Get<T>(string key, Transform parent = null) where T : class {
+            return Instance?._Get<T>(key, parent);
         }
 
         public static void Release(GameObject item, float delay = 0f) {
-            Instance._Release(item, delay);
+            Instance?._Release(item, delay);
         }
 
         public static void Release(IGOPoolItem item, float delay = 0f) {
-            Instance._Release(item, delay);
+            Instance?._Release(item, delay);
         }
 
         public static void Clear() {
-            Instance._Clear();
+            Instance?._Clear();
         }
 
         public static async Task Preload(string key, int count) {
@@ -186,7 +186,7 @@ namespace DarkNaku.GOPool {
             Resources.UnloadUnusedAssets();
         }
 
-        private T _Get<T>(string key, Transform parent) {
+        private T _Get<T>(string key, Transform parent) where T : class {
             var item = _Get(key, parent);
 
             return (item != null) ? item.GO.GetComponent<T>() : default;
