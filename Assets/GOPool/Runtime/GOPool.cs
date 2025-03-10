@@ -5,6 +5,10 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Pool;
 
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
 namespace DarkNaku.GOPool {
     public class GOPool : MonoBehaviour {
         public static GOPool Instance {
@@ -41,6 +45,36 @@ namespace DarkNaku.GOPool {
         private Dictionary<IGOPoolItem, float> _releaseQueue = new Dictionary<IGOPoolItem, float>();
         private List<IGOPoolItem> _releaseItems = new List<IGOPoolItem>();
         private bool _isReleaserRunning;
+
+#if UNITY_EDITOR
+        [InitializeOnLoadMethod]
+        private static void PackageImportHandler() {
+            var defines = PlayerSettings.GetScriptingDefineSymbolsForGroup(BuildTargetGroup.Standalone);
+
+            PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.Standalone, (defines + ";DARKNAKU_GOPOOL").Replace(";;", ";"));
+
+            /*
+            var buildTarget = BuildTargetGroup.Unknown;
+
+            string defines;
+
+#if UNITY_2023_1_OR_NEWER
+            var namedBuildTarget = UnityEditor.Build.NamedBuildTarget.FromBuildTargetGroup(buildTarget);
+            defines = PlayerSettings.GetScriptingDefineSymbols(namedBuildTarget);
+#else
+            defines = PlayerSettings.GetScriptingDefineSymbolsForGroup(buildTarget);
+#endif
+
+            if (defines.IndexOf("DARKNAKU_GOPOOL") < 0) {
+#if UNITY_2023_1_OR_NEWER
+				PlayerSettings.SetScriptingDefineSymbols(namedBuildTarget, defines);
+#else
+                PlayerSettings.SetScriptingDefineSymbolsForGroup(buildTarget, defines);
+#endif
+            }
+            */
+        }
+#endif
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void OnSubsystemRegistration() {
