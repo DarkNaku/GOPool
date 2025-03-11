@@ -4,6 +4,13 @@ using System.IO;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Pool;
+using UnityEditor.Compilation;
+using System.Reflection;
+using System;
+
+
+
+
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -49,30 +56,30 @@ namespace DarkNaku.GOPool {
 #if UNITY_EDITOR
         [InitializeOnLoadMethod]
         private static void PackageImportHandler() {
-            var defines = PlayerSettings.GetScriptingDefineSymbolsForGroup(BuildTargetGroup.Standalone);
+            var define = $"DARKNAKU_{MethodBase.GetCurrentMethod().DeclaringType.Assembly.GetName().Name.ToUpper()}";
 
-            PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.Standalone, (defines + ";DARKNAKU_GOPOOL").Replace(";;", ";"));
+            System.Array buildTargets = System.Enum.GetValues(typeof(BuildTarget));
 
-            /*
-            var buildTarget = BuildTargetGroup.Unknown;
+            foreach (BuildTarget target in buildTargets) {
+                var buildTargetGroup = BuildPipeline.GetBuildTargetGroup(target);
 
-            string defines;
+                if (BuildPipeline.IsBuildTargetSupported(buildTargetGroup, target) == false) continue;
 
 #if UNITY_2023_1_OR_NEWER
-            var namedBuildTarget = UnityEditor.Build.NamedBuildTarget.FromBuildTargetGroup(buildTarget);
-            defines = PlayerSettings.GetScriptingDefineSymbols(namedBuildTarget);
+                var namedBuildTarget = UnityEditor.Build.NamedBuildTarget.FromBuildTargetGroup(buildTargetGroup);
+                var defines = PlayerSettings.GetScriptingDefineSymbols(namedBuildTarget);
 #else
-            defines = PlayerSettings.GetScriptingDefineSymbolsForGroup(buildTarget);
+                var defines = PlayerSettings.GetScriptingDefineSymbolsForGroup(buildTargetGroup);
 #endif
 
-            if (defines.IndexOf("DARKNAKU_GOPOOL") < 0) {
+                if (defines.IndexOf(define) > 0) continue;
+
 #if UNITY_2023_1_OR_NEWER
-				PlayerSettings.SetScriptingDefineSymbols(namedBuildTarget, defines);
+				PlayerSettings.SetScriptingDefineSymbols(namedBuildTarget, $"{defines};{define}".Replace(";;", ";"));
 #else
-                PlayerSettings.SetScriptingDefineSymbolsForGroup(buildTarget, defines);
+                PlayerSettings.SetScriptingDefineSymbolsForGroup(buildTargetGroup, $"{defines};{define}".Replace(";;", ";"));
 #endif
             }
-            */
         }
 #endif
 
