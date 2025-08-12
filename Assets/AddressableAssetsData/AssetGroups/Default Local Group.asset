@@ -17,13 +17,13 @@ MonoBehaviour:
     m_SerializedData: []
   m_GUID: 726ce9546c8dc44d6a628eb0752ffceb
   m_SerializeEntries:
-  - m_GUID: 59d93ae47af8f43118b88c41dff842af
-    m_Address: Capsule
+  - m_GUID: 70fdb561262a369479df7e6200d89e56
+    m_Address: Sphere
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 5adfd93906d284699b7c329a6264e105
-    m_Address: Sphere
+  - m_GUID: ca093c9bab2bbf14cae18412e556f496
+    m_Address: Capsule
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0

@@ -1,24 +1,22 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 using UnityEngine.Pool;
+using UnityEngine.ResourceManagement.AsyncOperations;
 
 namespace DarkNaku.GOPool {
     [Serializable]
     public class GOPoolData {
-        [SerializeField] private string _key;
-        [SerializeField] private GameObject _prefab;
-
-        public string Key => _key;
-        public GameObject Prefab => _prefab;
+        public AsyncOperationHandle<GameObject> Handle => _handle;
 
         private IObjectPool<IGOPoolItem> _pool;
+        private AsyncOperationHandle<GameObject> _handle;
         private HashSet<IGOPoolItem> _inactiveItems = new();
 
-        public GOPoolData(string key, GameObject prefab, IObjectPool<IGOPoolItem> pool) {
-            _key = key;
-            _prefab = prefab;
+        public GOPoolData(IObjectPool<IGOPoolItem> pool, AsyncOperationHandle<GameObject> handle) {
             _pool = pool;
+            _handle = handle;
         }
 
         public IGOPoolItem Get() {
@@ -42,11 +40,13 @@ namespace DarkNaku.GOPool {
                 _pool.Release(item);
             }
 
+            if (_handle.IsValid()) {
+                Addressables.Release(_handle);
+            }
+
             _inactiveItems.Clear();
             _pool.Clear();
-
-            _key = null;
-            _prefab = null;
+            
             _pool = null;
         }
     }
