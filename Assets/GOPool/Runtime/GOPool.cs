@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using Cysharp.Threading.Tasks;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Pool;
 using UnityEngine.AddressableAssets;
@@ -81,51 +81,12 @@ namespace DarkNaku.GOPool {
             _isDestroyed = false;
         }
 
-        public static GameObject GetBuiltIn(string key, Transform parent = null) {
-            return Instance?._GetBuiltIn(key, parent).GO;
-        }
-
-        public static T GetBuiltIn<T>(string key, Transform parent = null) where T : class {
-            return Instance?._GetBuiltIn<T>(key, parent);
-        }
-
-        public static async UniTask<GameObject> Get(string key, Transform parent = null) {
-            if (Instance == null) {
-                return null;
-            } else {
-                var item = await Instance._Get(key, parent);
-                
-                return item.GO;
-            }
-        }
-
-        public static async UniTask<T> Get<T>(string key, Transform parent = null) where T : class {
-            if (Instance == null) {
-                return null;
-            } else {
-                return await Instance._Get<T>(key, parent);
-            }
-        }
-
-        public static void Release(GameObject item, float delay = 0f) {
-            Instance?._Release(item, delay);
-        }
-
-        public static void Release(IGOPoolItem item, float delay = 0f) {
-            Instance?._Release(item, delay);
-        }
-
-        public static void Clear() {
-            Instance?._Clear();
-        }
-
-        public static async UniTask PreloadBuiltIn(string key, int count) {
-            await Instance._PreloadBuiltIn(key, count);
-        }
-
-        public static async UniTask Preload(string key, int count) {
-            await Instance._Preload(key, count);
-        }
+        public static GameObject Get(string key, Transform parent = null) => Instance?._Get(key, parent)?.GO;
+        public static T Get<T>(string key, Transform parent = null) where T : class => Instance?._Get<T>(key, parent);
+        public static void Release(GameObject item, float delay = 0f) => Instance?._Release(item, delay);
+        public static void Release(IGOPoolItem item, float delay = 0f) => Instance?._Release(item, delay);
+        public static void Clear() => Instance?._Clear();
+        public static async Task Preload(string key, int count) => await Instance._Preload(key, count);
 
         private void Awake() {
             if (_instance == null) {
@@ -146,86 +107,6 @@ namespace DarkNaku.GOPool {
             _Clear();
 
             Debug.Log($"[GOPool] Destroyed.");
-        }
-
-        private T _GetBuiltIn<T>(string key, Transform parent) where T : class {
-            return _GetBuiltIn(key, parent)?.GO.GetComponent<T>();
-        }
-
-        private IGOPoolItem _GetBuiltIn(string key, Transform parent) {
-            if (_moldTable.ContainsKey(key) == false) {
-                var go = Resources.Load<GameObject>(key);
-
-                if (!go) {
-                    Debug.LogError($"[GOPool Get : Can't found item. {key}");
-                    return null;
-                }
-
-                Register(key, go, default);
-            }
-
-            if (_moldTable.TryGetValue(key, out var data)) {
-                var item = data.Get();
-
-                item.GO.transform.SetParent(parent);
-
-                return item;
-            }
-
-            return null;
-        }
-
-        private async UniTask<T> _Get<T>(string key, Transform parent) where T : class {
-            var item = await _Get(key, parent);
-
-            return item?.GO.GetComponent<T>();
-        }
-
-        private async UniTask<IGOPoolItem> _Get(string key, Transform parent) {
-            if (_moldTable.ContainsKey(key) == false) {
-                await Load(key);
-            }
-            
-            if (_moldTable.TryGetValue(key, out var data)) {
-                var item = data.Get();
-
-                item.GO.transform.SetParent(parent);
-                
-                return item;
-            }
-
-            return null;
-        }
-        
-        private void _Release(GameObject item, float delay) {
-            if (item == null) return;
-            
-            _Release(item.GetComponent<IGOPoolItem>(), delay);
-        }
-
-        private void _Release(IGOPoolItem item, float delay) {
-            if (item == null) return;
-
-            ReleaseAsync(item, delay).Forget();
-        }
-
-        private async UniTaskVoid ReleaseAsync(IGOPoolItem item, float delay) {
-            await UniTask.Delay(TimeSpan.FromSeconds(delay));
-            
-            item.PoolData.Release(item);
-        }
-
-        private async UniTask Load(string key) {
-            var handle = Addressables.LoadAssetAsync<GameObject>(key);
-            
-            await handle.Task;
-            
-            if (handle.Status != AsyncOperationStatus.Succeeded) {
-                throw new InvalidOperationException(
-                    $"[GOPool] Get : LoadAssetAsync Failed. Key = {key}, Message = {handle.OperationException.Message}");
-            }
-            
-            Register(key, handle.Result, handle);
         }
         
         private void Register(string key, GameObject prefab, AsyncOperationHandle<GameObject> handle) {
@@ -257,6 +138,65 @@ namespace DarkNaku.GOPool {
             _moldTable.TryAdd(key, data);
         }
 
+        private bool Load(string key) {
+            var go = Resources.Load<GameObject>(key);
+
+            if (go == null) {
+                try {
+                    var handle = Addressables.LoadAssetAsync<GameObject>(key);
+                    go = handle.WaitForCompletion();
+                    Register(key, go, handle);
+                    
+                    return true;
+                } catch (InvalidKeyException e) {
+                    Debug.LogError($"[GOPool] Load : {e.Message}");
+                    return false;   
+                }
+            }
+
+            Register(key, go, default);
+                
+            return true;
+        }
+        
+        private IGOPoolItem _Get(string key, Transform parent) {
+            if (_moldTable.ContainsKey(key) == false) {
+                if (Load(key) == false) return null;
+            }
+            
+            if (_moldTable.TryGetValue(key, out var data)) {
+                var item = data.Get();
+
+                item.GO.transform.SetParent(parent);
+                
+                return item;
+            }
+
+            return null;
+        }
+        
+        private T _Get<T>(string key, Transform parent) where T : class {
+            return _Get(key, parent)?.GO.GetComponent<T>();
+        }
+
+        private async Task ReleaseAsync(IGOPoolItem item, float delay) {
+            await Task.Delay(TimeSpan.FromSeconds(delay));
+            
+            item.PoolData.Release(item);
+        }
+
+        private void _Release(IGOPoolItem item, float delay) {
+            if (item == null) return;
+
+            _ = ReleaseAsync(item, delay);
+        }
+
+        private void _Release(GameObject item, float delay) {
+            if (item == null) return;
+            
+            _Release(item.GetComponent<IGOPoolItem>(), delay);
+        }
+
         private void _Clear() {
             foreach (var data in _moldTable.Values) {
                 data.Clear();
@@ -267,29 +207,13 @@ namespace DarkNaku.GOPool {
             Resources.UnloadUnusedAssets();
         }
         
-        private async UniTask _PreloadBuiltIn(string key, int count) {
-            var items = ListPool<IGOPoolItem>.Get();
-
-            while (count > 0) {
-                items.Add(_GetBuiltIn(key, transform));
-
-                count--;
-            }
-
-            for (int i = 0; i < items.Count; i++) {
-                _Release(items[i], 0f);
-            }
-            
-            ListPool<IGOPoolItem>.Release(items);
-        }
-
-        private async UniTask _Preload(string key, int count) {
+        private async Task _Preload(string key, int count) {
             var frameTime = 1f / Application.targetFrameRate;
             var items = ListPool<IGOPoolItem>.Get();
             var startTime = Time.realtimeSinceStartup;
 
             while (count > 0) {
-                var item = await _Get(key, transform);
+                var item = _Get(key, transform);
 
                 item.GO.SetActive(false);
 
@@ -298,7 +222,7 @@ namespace DarkNaku.GOPool {
                 count--;
 
                 if (Time.realtimeSinceStartup - startTime >= frameTime) {
-                    await UniTask.NextFrame();
+                    await Task.Yield();
                     startTime = Time.realtimeSinceStartup;
                 }
             }

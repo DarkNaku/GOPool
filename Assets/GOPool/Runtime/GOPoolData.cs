@@ -8,8 +8,6 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 namespace DarkNaku.GOPool {
     [Serializable]
     public class GOPoolData {
-        public AsyncOperationHandle<GameObject> Handle => _handle;
-
         private IObjectPool<IGOPoolItem> _pool;
         private AsyncOperationHandle<GameObject> _handle;
         private HashSet<IGOPoolItem> _inactiveItems = new();
